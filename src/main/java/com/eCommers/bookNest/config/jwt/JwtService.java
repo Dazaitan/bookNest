@@ -1,4 +1,4 @@
-package com.eCommers.bookNest.services;
+package com.eCommers.bookNest.config.jwt;
 
 import org.springframework.stereotype.Service;
 import io.jsonwebtoken.*;
@@ -8,6 +8,7 @@ import javax.crypto.SecretKey;
 
 @Service
 public class JwtService {
+    //clave secreta utilizada para firmar y verificar tokens JWT
     private final SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private final long EXPIRATION_TIME = 86400000; // Tiempo de expiración 24 horas
 

@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/booknest
+    username: pruebas
+    password: pruebas
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true

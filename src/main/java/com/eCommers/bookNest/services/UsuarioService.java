@@ -1,11 +1,14 @@
 package com.eCommers.bookNest.services;
 
+import com.eCommers.bookNest.config.jwt.JwtService;
 import com.eCommers.bookNest.entity.Usuario;
 import com.eCommers.bookNest.repository.UsuarioRepository;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
+
 @Service
 public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
@@ -24,14 +27,17 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
-    public Optional<Usuario> obtenerUsuarioPorCorreo(String correo) {
-        return usuarioRepository.findByCorreo(correo);
+    public Usuario obtenerUsuarioPorCorreo(String correo) {
+        return usuarioRepository.findByCorreo(correo).
+                orElseThrow(() -> new UsernameNotFoundException("Usuario con correo " + correo + " no encontrado"));
     }
+
     public String autenticarUsuario(String correo, String contrasena) {
-        Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreo(correo);
-        if (usuarioOpt.isPresent() && passwordService.verificarContrasena(contrasena, usuarioOpt.get().getContrasena())) {
-            return jwtService.generarToken(usuarioOpt.get().getCorreo(), usuarioOpt.get().getRol().name());
+        Usuario usuario = usuarioRepository.findByCorreo(correo)
+                .orElseThrow(() -> new BadCredentialsException("Correo incorrecto o no registrado"));
+        if (!passwordService.verificarContrasena(contrasena, usuario.getContrasena())) {
+            throw new BadCredentialsException("Credenciales incorrectas");
         }
-        throw new RuntimeException("Credenciales incorrectas");
+        return jwtService.generarToken(usuario.getCorreo(), usuario.getRol().name());
     }
 }

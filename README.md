@@ -5,8 +5,10 @@
    git clone https://github.com/Dazaitan/TaskManager
 2. Configurar base de datos:
     * Crear base de datos
+      ```bash
       CREATE DATABASE bookNest;
     * Tabla Usuarios
+      ```bash
       CREATE TABLE usuarios (
       id SERIAL PRIMARY KEY,
       nombre VARCHAR(100) NOT NULL,
@@ -16,6 +18,7 @@
       fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     * Tabla Libros
+      ```bash
       CREATE TABLE libros (
       id SERIAL PRIMARY KEY,
       titulo VARCHAR(200) NOT NULL,
@@ -26,13 +29,15 @@
       descripcion TEXT
       );
     * Tabla órdenes
+      ```bash
       CREATE TABLE ordenes (
       id SERIAL PRIMARY KEY,
       usuario_id INT REFERENCES usuarios(id),
-      estado VARCHAR(20) CHECK (estado IN ('PENDIENTE', 'CONFIRMADA', 'ENVIADA', 'CANCELADA')) NOT NULL,
+      estado VARCHAR(20) CHECK (estado IN ('PENDIENTE', 'EN_PROCESO', 'ENVIADA', 'COMPLETADA', 'CANCELADA')) NOT NULL,
       fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     * Tabla ordenes_libros
+      ```bash
       CREATE TABLE ordenes_libros (
       id SERIAL PRIMARY KEY,
       orden_id INT REFERENCES ordenes(id) ON DELETE CASCADE,
@@ -41,6 +46,7 @@
       precio_unitario DECIMAL(10,2) NOT NULL
       );
     * Tabla historial_transacciones
+      ```bash
       CREATE TABLE historial_transacciones (
       id SERIAL PRIMARY KEY,
       usuario_id INT REFERENCES usuarios(id),
@@ -49,6 +55,7 @@
       tipo_transaccion VARCHAR(50) NOT NULL
       );
     * Tabla notificaciones
+      ```bash
       CREATE TABLE notificaciones (
       id SERIAL PRIMARY KEY,
       usuario_id INT REFERENCES usuarios(id),

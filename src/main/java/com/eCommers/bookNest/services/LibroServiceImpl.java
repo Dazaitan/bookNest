@@ -2,10 +2,12 @@ package com.eCommers.bookNest.services;
 
 import com.eCommers.bookNest.entity.Libro;
 import com.eCommers.bookNest.repository.LibroRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class LibroServiceImpl implements LibroService{
     private final LibroRepository libroRepository;
 

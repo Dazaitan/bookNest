@@ -1,9 +1,11 @@
 package com.eCommers.bookNest.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.List;
-
+@Getter
+@Setter
 @Entity
 @Table(name = "ordenes_libros")
 public class OrdenLibro {

@@ -2,11 +2,16 @@ package com.eCommers.bookNest.controller;
 
 import com.eCommers.bookNest.dto.OrdenDTO;
 import com.eCommers.bookNest.dto.OrdenLibroDTO;
+import com.eCommers.bookNest.entity.Libro;
 import com.eCommers.bookNest.entity.Orden;
 import com.eCommers.bookNest.entity.OrdenLibro;
+import com.eCommers.bookNest.entity.Usuario;
+import com.eCommers.bookNest.repository.UsuarioRepository;
 import com.eCommers.bookNest.services.OrdenServiceImpl;
+import com.eCommers.bookNest.services.UsuarioService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,14 +21,21 @@ import java.util.stream.Collectors;
 @RequestMapping("/ordenes")
 public class OrdenController {
     private final OrdenServiceImpl ordenService;
+    private final UsuarioService usuarioService;
 
-    public OrdenController(OrdenServiceImpl ordenService) {
+    public OrdenController(OrdenServiceImpl ordenService, UsuarioService usuarioService) {
         this.ordenService = ordenService;
+        this.usuarioService = usuarioService;
     }
 
     @PostMapping("/crear")
     @PreAuthorize("hasRole('CLIENTE')")
-    public ResponseEntity<OrdenDTO> crearOrden(@RequestBody Orden orden) {
+    public ResponseEntity<OrdenDTO> crearOrden(@RequestBody Orden orden, Authentication authentication) {
+        String correoUsuario = authentication.getName();
+        Usuario usuario = usuarioService.obtenerUsuarioPorCorreo(correoUsuario);
+
+        orden.setUsuario(usuario);
+
         Orden nuevaOrden = ordenService.crearOrden(orden);
 
         List<OrdenLibroDTO> librosDTO = nuevaOrden.getLibrosOrdenados().stream()

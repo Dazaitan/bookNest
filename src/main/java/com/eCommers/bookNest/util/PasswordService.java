@@ -1,4 +1,4 @@
-package com.eCommers.bookNest.services;
+package com.eCommers.bookNest.util;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;

@@ -10,9 +10,11 @@ import java.util.Optional;
 @Service
 public class LibroServiceImpl implements LibroService{
     private final LibroRepository libroRepository;
+    private final NotificacionServicesImpl notificacionServicesImpl;
 
-    public LibroServiceImpl(LibroRepository libroRepository) {
+    public LibroServiceImpl(LibroRepository libroRepository, NotificacionServicesImpl notificacionServicesImpl) {
         this.libroRepository = libroRepository;
+        this.notificacionServicesImpl = notificacionServicesImpl;
     }
 
     @Override
@@ -34,10 +36,21 @@ public class LibroServiceImpl implements LibroService{
     public Libro actualizarLibro(Long id, Libro libroDetalles) {
         return libroRepository.findById(id)
                 .map(libro -> {
+                    boolean cambioPrecio = !libro.getPrecio().equals(libroDetalles.getPrecio());
+                    boolean cambioStock = !libro.getStock().equals(libroDetalles.getStock());
+
                     libro.setTitulo(libroDetalles.getTitulo());
                     libro.setAutor(libroDetalles.getAutor());
                     libro.setPrecio(libroDetalles.getPrecio());
                     libro.setStock(libroDetalles.getStock());
+
+                    // Notificar cambios a los usuarios
+                    if (cambioPrecio) {
+                        notificacionServicesImpl.crearNotificacionGlobal("El libro '" + libro.getTitulo() + "' ha cambiado de precio a $" + libro.getPrecio());
+                    }
+                    if (cambioStock) {
+                        notificacionServicesImpl.crearNotificacionGlobal("El stock del libro '" + libro.getTitulo() + "' ha cambiado a " + libro.getStock() + " unidades.");
+                    }
                     return libroRepository.save(libro);
                 })
                 .orElseThrow(() -> new RuntimeException("Libro no encontrado"));

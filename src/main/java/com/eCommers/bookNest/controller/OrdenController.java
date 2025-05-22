@@ -2,11 +2,10 @@ package com.eCommers.bookNest.controller;
 
 import com.eCommers.bookNest.dto.OrdenDTO;
 import com.eCommers.bookNest.dto.OrdenLibroDTO;
-import com.eCommers.bookNest.entity.Libro;
+import com.eCommers.bookNest.entity.EstadoOrden;
 import com.eCommers.bookNest.entity.Orden;
-import com.eCommers.bookNest.entity.OrdenLibro;
 import com.eCommers.bookNest.entity.Usuario;
-import com.eCommers.bookNest.repository.UsuarioRepository;
+import com.eCommers.bookNest.services.NotificacionServicesImpl;
 import com.eCommers.bookNest.services.OrdenServiceImpl;
 import com.eCommers.bookNest.services.UsuarioService;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +19,14 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/ordenes")
 public class OrdenController {
-    private final OrdenServiceImpl ordenService;
+    private final OrdenServiceImpl ordenServiceImpl;
     private final UsuarioService usuarioService;
+    private final NotificacionServicesImpl notificacionServicesImpl;
 
-    public OrdenController(OrdenServiceImpl ordenService, UsuarioService usuarioService) {
-        this.ordenService = ordenService;
+    public OrdenController(OrdenServiceImpl ordenService, UsuarioService usuarioService, NotificacionServicesImpl notificacionServicesImpl) {
+        this.ordenServiceImpl = ordenService;
         this.usuarioService = usuarioService;
+        this.notificacionServicesImpl = notificacionServicesImpl;
     }
 
     @PostMapping("/crear")
@@ -36,7 +37,7 @@ public class OrdenController {
 
         orden.setUsuario(usuario);
 
-        Orden nuevaOrden = ordenService.crearOrden(orden);
+        Orden nuevaOrden = ordenServiceImpl.crearOrden(orden);
 
         List<OrdenLibroDTO> librosDTO = nuevaOrden.getLibrosOrdenados().stream()
                 .map(ordenLibro -> new OrdenLibroDTO(
@@ -53,14 +54,14 @@ public class OrdenController {
         ordenDTO.setFecha(nuevaOrden.getFecha());
         ordenDTO.setEstado(nuevaOrden.getEstado());
         ordenDTO.setLibrosOrdenados(librosDTO);
-
+        notificacionServicesImpl.crearNotificacion(orden.getUsuario().getId(), "Tu orden ha sido creada con estado PENDIENTE.");
         return ResponseEntity.ok(ordenDTO);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('CLIENTE')")
     public ResponseEntity<Orden> obtenerOrden(@PathVariable Long id) {
-        return ordenService.obtenerOrdenPorId(id)
+        return ordenServiceImpl.obtenerOrdenPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -68,12 +69,15 @@ public class OrdenController {
     @GetMapping("/usuario/{id}")
     @PreAuthorize("hasRole('CLIENTE')")
     public ResponseEntity<List<Orden>> obtenerOrdenesUsuario(@PathVariable Long id) {
-        List<Orden> ordenes = ordenService.obtenerOrdenesPorUsuario(id);
+        List<Orden> ordenes = ordenServiceImpl.obtenerOrdenesPorUsuario(id);
         return ResponseEntity.ok(ordenes);
     }
-    /* Test
-    @GetMapping("/1")
-    public String libroGet(){
-        return "Hola mundo desde el controlador de ordenes";
-    }*/
+
+    @PutMapping("/actualizar-estado/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Orden> actualizarEstadoOrden(@PathVariable Long id, @RequestBody EstadoOrden nuevoEstado) {
+        Orden actualizada = ordenServiceImpl.actualizarEstadoOrden(id, nuevoEstado);
+        return ResponseEntity.ok(actualizada);
+    }
+
 }

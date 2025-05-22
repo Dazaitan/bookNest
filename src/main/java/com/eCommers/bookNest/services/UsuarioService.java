@@ -3,6 +3,7 @@ package com.eCommers.bookNest.services;
 import com.eCommers.bookNest.config.jwt.JwtService;
 import com.eCommers.bookNest.entity.Usuario;
 import com.eCommers.bookNest.repository.UsuarioRepository;
+import com.eCommers.bookNest.util.PasswordService;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;

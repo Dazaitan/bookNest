@@ -14,11 +14,13 @@ public class OrdenServiceImpl implements OrdenService{
     private final OrdenRepository ordenRepository;
     private final UsuarioRepository usuarioRepository;
     private final LibroRepository libroRepository;
+    private final NotificacionServicesImpl notificacionService;
 
-    public OrdenServiceImpl(OrdenRepository ordenRepository, UsuarioRepository usuarioRepository, LibroRepository libroRepository) {
+    public OrdenServiceImpl(OrdenRepository ordenRepository, UsuarioRepository usuarioRepository, LibroRepository libroRepository, NotificacionServicesImpl notificacionService) {
         this.ordenRepository = ordenRepository;
         this.usuarioRepository = usuarioRepository;
         this.libroRepository = libroRepository;
+        this.notificacionService = notificacionService;
     }
 
     @Override
@@ -47,5 +49,18 @@ public class OrdenServiceImpl implements OrdenService{
     @Override
     public List<Orden> obtenerOrdenesPorUsuario(Long usuarioId) {
         return ordenRepository.findByUsuarioId(usuarioId);
+    }
+
+    @Override
+    public Orden actualizarEstadoOrden(Long id, EstadoOrden nuevoEstado) {
+        return ordenRepository.findById(id)
+                .map(orden -> {
+                    orden.setEstado(nuevoEstado);
+                    ordenRepository.save(orden);
+                    notificacionService.crearNotificacion(orden.getUsuario().getId(),
+                            "Tu orden ha sido actualizada a estado " + nuevoEstado);
+                    return orden;
+                })
+                .orElseThrow(() -> new RuntimeException("Orden no encontrada"));
     }
 }

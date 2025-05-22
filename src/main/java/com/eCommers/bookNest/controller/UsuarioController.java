@@ -25,5 +25,4 @@ public class UsuarioController {
         Usuario usuario = usuarioService.obtenerUsuarioPorCorreo(correo);
         return ResponseEntity.ok(usuario);
     }
-
 }

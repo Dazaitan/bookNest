@@ -30,12 +30,7 @@ public class NotificacionServicesImpl implements NotificacionService{
 
         notificacionRepository.save(notificacion);
     }
-
-    @Override
-    public List<Notificacion> obtenerNotificaciones(Long usuarioId) {
-        return notificacionRepository.findByUsuarioId(usuarioId);
-    }
-
+    
     @Override
     public void marcarComoLeido(Long id) {
         Notificacion notificacion = notificacionRepository.findById(id)

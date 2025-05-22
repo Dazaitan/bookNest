@@ -11,4 +11,5 @@ public interface OrdenService {
     Optional<Orden> obtenerOrdenPorId(Long id);
     List<Orden> obtenerOrdenesPorUsuario(Long usuarioId);
     Orden actualizarEstadoOrden(Long id, EstadoOrden nuevoEstado);
+    Orden completarOrden(Long id, String metodoPago);
 }

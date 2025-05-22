@@ -80,4 +80,11 @@ public class OrdenController {
         return ResponseEntity.ok(actualizada);
     }
 
+    @PutMapping("/completar/{id}")
+    @PreAuthorize("hasRole('CLIENTE')")
+    public ResponseEntity<Orden> completarOrden(@PathVariable Long id, @RequestBody String metodoPago) {
+        Orden ordenCompletada = ordenServiceImpl.completarOrden(id, metodoPago);
+        return ResponseEntity.ok(ordenCompletada);
+    }
+
 }

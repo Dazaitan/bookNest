@@ -45,15 +45,19 @@
       cantidad INT NOT NULL CHECK (cantidad > 0),
       precio_unitario DECIMAL(10,2) NOT NULL
       );
-    * Tabla historial_transacciones
+    * Tabla transacciones
       ```bash
-      CREATE TABLE historial_transacciones (
+      CREATE TABLE transacciones (
       id SERIAL PRIMARY KEY,
-      usuario_id INT REFERENCES usuarios(id),
-      orden_id INT REFERENCES ordenes(id),
+      usuario_id BIGINT NOT NULL,
+      orden_id BIGINT NOT NULL,
       fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      tipo_transaccion VARCHAR(50) NOT NULL
+      monto_total DECIMAL(10,2) NOT NULL,
+      metodo_pago VARCHAR(50) NOT NULL,
+      FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+      FOREIGN KEY (orden_id) REFERENCES ordenes(id) ON DELETE CASCADE
       );
+
     * Tabla notificaciones
       ```bash
       CREATE TABLE notificaciones (

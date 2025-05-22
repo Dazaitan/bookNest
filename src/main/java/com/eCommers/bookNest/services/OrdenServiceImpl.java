@@ -15,12 +15,14 @@ public class OrdenServiceImpl implements OrdenService{
     private final UsuarioRepository usuarioRepository;
     private final LibroRepository libroRepository;
     private final NotificacionServicesImpl notificacionService;
+    private final TransaccionServiceImpl transaccionServiceImpl;
 
-    public OrdenServiceImpl(OrdenRepository ordenRepository, UsuarioRepository usuarioRepository, LibroRepository libroRepository, NotificacionServicesImpl notificacionService) {
+    public OrdenServiceImpl(OrdenRepository ordenRepository, UsuarioRepository usuarioRepository, LibroRepository libroRepository, NotificacionServicesImpl notificacionService, TransaccionServiceImpl transaccionServiceImpl) {
         this.ordenRepository = ordenRepository;
         this.usuarioRepository = usuarioRepository;
         this.libroRepository = libroRepository;
         this.notificacionService = notificacionService;
+        this.transaccionServiceImpl = transaccionServiceImpl;
     }
 
     @Override
@@ -59,6 +61,21 @@ public class OrdenServiceImpl implements OrdenService{
                     ordenRepository.save(orden);
                     notificacionService.crearNotificacion(orden.getUsuario().getId(),
                             "Tu orden ha sido actualizada a estado " + nuevoEstado);
+                    return orden;
+                })
+                .orElseThrow(() -> new RuntimeException("Orden no encontrada"));
+    }
+
+    @Override
+    public Orden completarOrden(Long id, String metodoPago) {
+        return ordenRepository.findById(id)
+                .map(orden -> {
+                    orden.setEstado(EstadoOrden.COMPLETADA);
+                    ordenRepository.save(orden);
+
+                    // Registrar la transacción
+                    transaccionServiceImpl.registrarTransaccion(orden.getUsuario().getId(), orden, metodoPago);
+
                     return orden;
                 })
                 .orElseThrow(() -> new RuntimeException("Orden no encontrada"));

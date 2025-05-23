@@ -4,10 +4,11 @@ import com.eCommers.bookNest.entity.Notificacion;
 import com.eCommers.bookNest.entity.Usuario;
 import com.eCommers.bookNest.repository.NotificacionRepository;
 import com.eCommers.bookNest.repository.UsuarioRepository;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
+@Service
 public class NotificacionServicesImpl implements NotificacionService{
     private final NotificacionRepository notificacionRepository;
     private final UsuarioRepository usuarioRepository;

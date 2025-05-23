@@ -58,32 +58,77 @@ public class OrdenController {
         return ResponseEntity.ok(ordenDTO);
     }
 
+    //Hay que crear un DTO para que me retorne solo la información pertinente a la orden sin repetir información
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('CLIENTE')")
-    public ResponseEntity<Orden> obtenerOrden(@PathVariable Long id) {
+    public ResponseEntity<OrdenDTO> obtenerOrden(@PathVariable Long id) {
         return ordenServiceImpl.obtenerOrdenPorId(id)
-                .map(ResponseEntity::ok)
+                .map(orden -> {
+                    OrdenDTO dto = new OrdenDTO();
+                    dto.setId(orden.getId());
+                    dto.setUsuarioId(orden.getUsuario().getId());
+                    dto.setFecha(orden.getFecha());
+                    dto.setEstado(orden.getEstado());
+
+                    // Convertir la lista de OrdenLibro a OrdenLibroDTO
+                    List<OrdenLibroDTO> librosDTO = orden.getLibrosOrdenados().stream()
+                            .map(libro -> new OrdenLibroDTO(
+                                    libro.getLibro().getId(),
+                                    libro.getLibro().getTitulo(),
+                                    libro.getCantidad(),
+                                    libro.getPrecioUnitario()
+                            ))
+                            .collect(Collectors.toList());
+
+                    dto.setLibrosOrdenados(librosDTO);
+
+                    return ResponseEntity.ok(dto);
+                })
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/usuario/{id}")
     @PreAuthorize("hasRole('CLIENTE')")
-    public ResponseEntity<List<Orden>> obtenerOrdenesUsuario(@PathVariable Long id) {
-        List<Orden> ordenes = ordenServiceImpl.obtenerOrdenesPorUsuario(id);
-        return ResponseEntity.ok(ordenes);
+    public ResponseEntity<List<OrdenDTO>> obtenerOrdenesUsuario(@PathVariable Long id) {
+        List<OrdenDTO> ordenesDTO = ordenServiceImpl.obtenerOrdenesPorUsuario(id).stream()
+                .map(orden -> {
+                    OrdenDTO dto = new OrdenDTO();
+                    dto.setId(orden.getId());
+                    dto.setUsuarioId(orden.getUsuario().getId());
+                    dto.setFecha(orden.getFecha());
+                    dto.setEstado(orden.getEstado());
+
+                    List<OrdenLibroDTO> librosDTO = orden.getLibrosOrdenados().stream()
+                            .map(libro -> new OrdenLibroDTO(
+                                    libro.getLibro().getId(),
+                                    libro.getLibro().getTitulo(),
+                                    libro.getCantidad(),
+                                    libro.getPrecioUnitario()
+                            ))
+                            .collect(Collectors.toList());
+
+                    dto.setLibrosOrdenados(librosDTO);
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        return (ordenesDTO == null || ordenesDTO.isEmpty())
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(ordenesDTO);
     }
 
     @PutMapping("/actualizar-estado/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Orden> actualizarEstadoOrden(@PathVariable Long id, @RequestBody EstadoOrden nuevoEstado) {
-        Orden actualizada = ordenServiceImpl.actualizarEstadoOrden(id, nuevoEstado);
+    public ResponseEntity<OrdenDTO> actualizarEstadoOrden(@PathVariable Long id, @RequestBody EstadoOrden nuevoEstado) {
+        OrdenDTO actualizada = ordenServiceImpl.actualizarEstadoOrden(id, nuevoEstado);
         return ResponseEntity.ok(actualizada);
     }
 
     @PutMapping("/completar/{id}")
     @PreAuthorize("hasRole('CLIENTE')")
-    public ResponseEntity<Orden> completarOrden(@PathVariable Long id, @RequestBody String metodoPago) {
-        Orden ordenCompletada = ordenServiceImpl.completarOrden(id, metodoPago);
+    public ResponseEntity<OrdenDTO> completarOrden(@PathVariable Long id, @RequestBody String metodoPago) {
+        OrdenDTO ordenCompletada = ordenServiceImpl.completarOrden(id, metodoPago);
         return ResponseEntity.ok(ordenCompletada);
     }
 

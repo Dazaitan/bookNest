@@ -5,10 +5,12 @@ import com.eCommers.bookNest.entity.Transaccion;
 import com.eCommers.bookNest.entity.Usuario;
 import com.eCommers.bookNest.repository.TransaccionRepository;
 import com.eCommers.bookNest.repository.UsuarioRepository;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Service
 public class TransaccionServiceImpl implements TransaccionService{
     private final TransaccionRepository transaccionRepository;
     private final UsuarioRepository usuarioRepository;

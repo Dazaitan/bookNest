@@ -24,12 +24,12 @@ public class SecurityConfig {
                         .requestMatchers("/auth/login").permitAll()//Habilitar para todos el endpoint de autenticación (/auth/login)
                         .requestMatchers("/usuarios/**").permitAll()
                         .requestMatchers("/libros/**").hasRole("ADMIN")
-                        .requestMatchers("/ordenes/**").hasRole("CLIENTE")
+                        .requestMatchers("/ordenes/**").hasAnyRole("ADMIN", "CLIENTE")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         /*
         * addFilterBefore Ejecuta el filtro antes de que Spring gestione la seguridad
-        * para validar si hay un token valido en la solicitud
+        * para validar si hay un token válido en la solicitud
         * */
 
         return http.build();

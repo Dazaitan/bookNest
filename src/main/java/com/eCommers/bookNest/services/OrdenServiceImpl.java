@@ -1,5 +1,7 @@
 package com.eCommers.bookNest.services;
 
+import com.eCommers.bookNest.dto.OrdenDTO;
+import com.eCommers.bookNest.dto.OrdenLibroDTO;
 import com.eCommers.bookNest.entity.*;
 import com.eCommers.bookNest.repository.LibroRepository;
 import com.eCommers.bookNest.repository.OrdenRepository;
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class OrdenServiceImpl implements OrdenService{
@@ -54,20 +57,34 @@ public class OrdenServiceImpl implements OrdenService{
     }
 
     @Override
-    public Orden actualizarEstadoOrden(Long id, EstadoOrden nuevoEstado) {
+    public OrdenDTO actualizarEstadoOrden(Long id, EstadoOrden nuevoEstado) {
         return ordenRepository.findById(id)
                 .map(orden -> {
                     orden.setEstado(nuevoEstado);
                     ordenRepository.save(orden);
                     notificacionService.crearNotificacion(orden.getUsuario().getId(),
                             "Tu orden ha sido actualizada a estado " + nuevoEstado);
-                    return orden;
+                    OrdenDTO dto = new OrdenDTO();
+                    dto.setId(orden.getId());
+                    dto.setEstado(orden.getEstado());
+                    dto.setFecha(orden.getFecha());
+                    dto.setUsuarioId(orden.getUsuario().getId());
+
+                    List<OrdenLibroDTO> libroDTO = orden.getLibrosOrdenados().stream()
+                            .map(libro ->new OrdenLibroDTO(
+                                    libro.getLibro().getId(),
+                                    libro.getLibro().getTitulo(),
+                                    libro.getCantidad(),
+                                    libro.getPrecioUnitario()
+                            )).collect(Collectors.toList());;
+                    dto.setLibrosOrdenados(libroDTO);
+                    return dto;
                 })
                 .orElseThrow(() -> new RuntimeException("Orden no encontrada"));
     }
 
     @Override
-    public Orden completarOrden(Long id, String metodoPago) {
+    public OrdenDTO completarOrden(Long id, String metodoPago) {
         return ordenRepository.findById(id)
                 .map(orden -> {
                     orden.setEstado(EstadoOrden.COMPLETADA);
@@ -75,8 +92,21 @@ public class OrdenServiceImpl implements OrdenService{
 
                     // Registrar la transacción
                     transaccionServiceImpl.registrarTransaccion(orden.getUsuario().getId(), orden, metodoPago);
+                    OrdenDTO dto = new OrdenDTO();
+                    dto.setId(orden.getId());
+                    dto.setEstado(orden.getEstado());
+                    dto.setFecha(orden.getFecha());
+                    dto.setUsuarioId(orden.getUsuario().getId());
 
-                    return orden;
+                    List<OrdenLibroDTO> libroDTO = orden.getLibrosOrdenados().stream()
+                            .map(libro ->new OrdenLibroDTO(
+                                    libro.getLibro().getId(),
+                                    libro.getLibro().getTitulo(),
+                                    libro.getCantidad(),
+                                    libro.getPrecioUnitario()
+                            )).collect(Collectors.toList());;
+                    dto.setLibrosOrdenados(libroDTO);
+                    return dto;
                 })
                 .orElseThrow(() -> new RuntimeException("Orden no encontrada"));
     }

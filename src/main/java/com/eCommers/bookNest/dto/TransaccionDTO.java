@@ -25,7 +25,7 @@ public class TransaccionDTO {
         this.fecha = transaccion.getFecha();
         this.montoTotal = transaccion.getMontoTotal();
         this.metodoPago = transaccion.getMetodoPago();
-        this.ordenId = transaccion.getOrden().getId(); // Solo el ID
+        this.ordenId = transaccion.getOrden().getId();
     }
 
 }

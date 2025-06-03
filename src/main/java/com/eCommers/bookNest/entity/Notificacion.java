@@ -25,4 +25,5 @@ public class Notificacion {
     private LocalDateTime fecha;
 
     private boolean leido = false;
+
 }

@@ -23,7 +23,7 @@ public class Usuario {
     private String correo;
 
     @Column(nullable = false)
-    private String contrasena; // Se recomienda encriptar con BCrypt
+    private String contrasena;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

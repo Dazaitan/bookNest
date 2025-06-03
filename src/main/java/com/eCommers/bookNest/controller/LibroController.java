@@ -52,9 +52,4 @@ public class LibroController {
         libroService.eliminarLibro(id);
         return ResponseEntity.noContent().build();
     }
-    /*
-    @GetMapping("/1")
-    public String libroGet(){
-        return "Hola mundo desde el controlador Libros";
-    }*/
 }

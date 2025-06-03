@@ -21,7 +21,7 @@ public class NotificacionController {
     @GetMapping("/usuario")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<Notificacion>> obtenerNotificacionesUsuario(Authentication authentication) {
-        String correoUsuario = authentication.getName(); // Obtener email desde el header del JWT
+        String correoUsuario = authentication.getName();
         List<Notificacion> notificaciones = notificacionServiceImpl.obtenerNotificacionesPorCorreo(correoUsuario);
         return ResponseEntity.ok(notificaciones);
     }

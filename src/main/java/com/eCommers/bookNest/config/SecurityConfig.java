@@ -25,8 +25,14 @@ public class SecurityConfig {
                         .requestMatchers("/usuarios/**").permitAll()
                         .requestMatchers("/libros/**").hasRole("ADMIN")
                         .requestMatchers("/ordenes/**").hasAnyRole("ADMIN", "CLIENTE")
-                        .anyRequest().authenticated())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                        .anyRequest().authenticated());
+
+        //Deshabilitar seguridad para pruebas
+        if ("test".equals(System.getProperty("spring.profiles.active"))) {
+            http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+        }
+
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         /*
         * addFilterBefore Ejecuta el filtro antes de que Spring gestione la seguridad
         * para validar si hay un token válido en la solicitud

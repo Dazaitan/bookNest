@@ -1,42 +1,53 @@
 package com.eCommers.bookNest.controller;
 
-import com.eCommers.bookNest.config.filters.JwtAuthenticationFilter;
+import com.eCommers.bookNest.config.jwt.JwtService;
+import com.eCommers.bookNest.entity.EstadoOrden;
+import com.eCommers.bookNest.entity.Orden;
+import com.eCommers.bookNest.entity.Usuario;
 import com.eCommers.bookNest.services.OrdenServiceImpl;
 import com.eCommers.bookNest.services.UsuarioService;
+import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
-import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import java.util.ArrayList;
+
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc
-@ExtendWith(org.mockito.junit.jupiter.MockitoExtension.class)
 class OrdenControllerTest {
+
+    @Autowired
+    private WebApplicationContext webApplicationContext;
+
     @Autowired
     private MockMvc mockMvc;
 
     @MockitoBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    private JwtService jwtService;
 
     @MockitoBean
     private OrdenServiceImpl ordenServiceImpl;
 
     @MockitoBean
     private UsuarioService usuarioService;
-
 
     @Container
     private static final PostgreSQLContainer<?> postgres =
@@ -45,20 +56,65 @@ class OrdenControllerTest {
                     .withUsername("test")
                     .withPassword("test");
 
+    private String tokenMock;
     @BeforeEach
     void setUp() throws Exception {
-        System.setProperty("spring.datasource.url", postgres.getJdbcUrl());
-        System.setProperty("spring.datasource.username", postgres.getUsername());
-        System.setProperty("spring.datasource.password", postgres.getPassword());
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                .apply(springSecurity())
+                .build();
 
-        Mockito.doNothing().when(jwtAuthenticationFilter).doFilter(Mockito.any(), Mockito.any(), Mockito.any());
+        System.out.println("🔍 Base de datos de Testcontainers iniciada en: " + postgres.getJdbcUrl());
+
+        // Generar un JWT válido con `JwtService`
+        Mockito.when(jwtService.generarToken(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn("mi-token-mockeado");
+        tokenMock = "Bearer " + jwtService.generarToken("testUser", "CLIENTE");
+        System.out.println("🔍 Token generado en setUp: " + tokenMock);
+
+        // Simular `Claims`
+        Claims claimsMock = Mockito.mock(Claims.class);
+        Mockito.when(claimsMock.getSubject()).thenReturn("testUser");
+        Mockito.when(claimsMock.get("rol")).thenReturn("CLIENTE");
+
+        Mockito.when(jwtService.validarToken(Mockito.anyString())).thenReturn(claimsMock);
+
+        // Simular usuario obtenido por correo
+        Usuario usuarioMock = new Usuario();
+        usuarioMock.setId(1L);
+        usuarioMock.setCorreo("test@correo.com");
+
+        Mockito.when(usuarioService.obtenerUsuarioPorCorreo(Mockito.anyString()))
+                .thenReturn(usuarioMock);
+
+        // Simular orden creada
+        Orden ordenMock = new Orden();
+        ordenMock.setId(1L);
+        ordenMock.setUsuario(usuarioMock);
+        ordenMock.setEstado(EstadoOrden.PENDIENTE);
+        ordenMock.setLibrosOrdenados(new ArrayList<>());
+
+        Mockito.when(ordenServiceImpl.crearOrden(Mockito.any(Orden.class)))
+                .thenReturn(ordenMock);
     }
 
     @Test
     void crearOrden_DeberiaRetornar200() throws Exception {
-        mockMvc.perform(post("/ordenes/crear")
-                        .contentType(MediaType.APPLICATION_JSON)
+        System.out.println("🔍 Ejecutando prueba de crearOrden...");
+        System.out.println("🔍 Token enviado: " + tokenMock);
+
+        MvcResult result = mockMvc.perform(post("/ordenes/crear")
+                        .header("Authorization", tokenMock) //Enviar token en la peticion
+                        .contentType("application/json")
                         .content("{\"usuarioId\": 1, \"estado\": \"PENDIENTE\"}"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andReturn();
+
+        System.out.println("🔍 Respuesta JSON: " + result.getResponse().getContentAsString());
+
+        mockMvc.perform(post("/ordenes/crear")
+                        .header("Authorization", tokenMock)
+                        .contentType("application/json")
+                        .content("{\"usuarioId\": 1, \"estado\": \"PENDIENTE\"}"))
+                .andExpect(jsonPath("$.estado").value("PENDIENTE"));
     }
 }

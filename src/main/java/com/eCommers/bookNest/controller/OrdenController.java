@@ -30,8 +30,9 @@ public class OrdenController {
     }
 
     @PostMapping("/crear")
-    @PreAuthorize("hasRole('CLIENTE')")
+    //@PreAuthorize("hasRole('CLIENTE')")
     public ResponseEntity<OrdenDTO> crearOrden(@RequestBody Orden orden, Authentication authentication) {
+        System.out.println("🔍 Authentication: " + authentication);
         String correoUsuario = authentication.getName();
         Usuario usuario = usuarioService.obtenerUsuarioPorCorreo(correoUsuario);
 
@@ -55,6 +56,7 @@ public class OrdenController {
         ordenDTO.setEstado(nuevaOrden.getEstado());
         ordenDTO.setLibrosOrdenados(librosDTO);
         notificacionServicesImpl.crearNotificacion(orden.getUsuario().getId(), "Tu orden ha sido creada con estado PENDIENTE.");
+        System.out.println("Estado de la orden en DTO: " + ordenDTO.getEstado());
         return ResponseEntity.ok(ordenDTO);
     }
 

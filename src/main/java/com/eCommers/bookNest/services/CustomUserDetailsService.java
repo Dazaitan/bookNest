@@ -24,7 +24,13 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con correo: " + correo));
 
         // Asignar roles con el prefijo `ROLE_`
-        Collection<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + usuario.getRol()));
+        System.out.println("Cargando usuario");
+        String rolString = usuario.getRol().name();
+        System.out.println("🔍 Rol asignado en UserDetails: " + rolString);
+        Collection<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority(rolString.startsWith("ROLE_") ? rolString : "ROLE_" + rolString)
+        );
+
 
         return new User(usuario.getCorreo(), usuario.getContrasena(), authorities);
     }

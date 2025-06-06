@@ -30,6 +30,7 @@ public class OrdenServiceImpl implements OrdenService{
 
     @Override
     public Orden crearOrden(Orden orden) {
+        System.out.println("Ingresando al servicio de Creacion de orden");
         Usuario usuario = usuarioRepository.findById(orden.getUsuario().getId())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 

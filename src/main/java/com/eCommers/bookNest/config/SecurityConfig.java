@@ -2,7 +2,6 @@ package com.eCommers.bookNest.config;
 
 import com.eCommers.bookNest.config.filters.JwtAuthenticationFilter;
 import com.eCommers.bookNest.repository.UsuarioRepository;
-import com.eCommers.bookNest.services.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -36,16 +35,6 @@ public class SecurityConfig {
         * */
 
         return http.build();
-    }
-
-
-    /*
-    * Cada que un usuario intente logearse
-    * 1️⃣ Spring Security detecta este @Bean y lo usa para cargar los detalles de usuario.
-    * 2️⃣ Cuando alguien intenta autenticarse, Spring llama automáticamente a CustomUserDetailsService.loadUserByUsername(correo).*/
-    @Bean
-    public UserDetailsService userDetailsService(UsuarioRepository usuarioRepository) {
-        return new CustomUserDetailsService(usuarioRepository);
     }
 
 }

@@ -30,7 +30,7 @@ public class OrdenController {
     }
 
     @PostMapping("/crear")
-    //@PreAuthorize("hasRole('CLIENTE')")
+    @PreAuthorize("hasRole('CLIENTE')")
     public ResponseEntity<OrdenDTO> crearOrden(@RequestBody Orden orden, Authentication authentication) {
         System.out.println("🔍 Authentication: " + authentication);
         String correoUsuario = authentication.getName();
@@ -120,6 +120,8 @@ public class OrdenController {
                 : ResponseEntity.ok(ordenesDTO);
     }
 
+
+    /*Hay algo maal con este endpoint que sigue permitiendole a los usuarios con el Rol de cliente actualizar el estado de las ordenes*/
     @PutMapping("/actualizar-estado/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<OrdenDTO> actualizarEstadoOrden(@PathVariable Long id, @RequestBody EstadoOrden nuevoEstado) {

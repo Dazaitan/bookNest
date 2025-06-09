@@ -25,10 +25,17 @@ public class JwtService {
 
     public Claims validarToken(String token) {
         //verificar que el token es válido y extraer datos.
-        return Jwts.parser()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            System.out.println("🔍 Claims extraídos del token: " + claims);
+            return claims;
+        } catch (Exception e) {
+            System.out.println("❌ Error al validar el token: " + e.getMessage());
+            return null;
+        }
     }
 }

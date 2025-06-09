@@ -31,17 +31,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //Obtener credenciales del encabezado de autorización
         System.out.println("🔍 Token recibido en JwtAuthenticationFilter: " + request.getHeader("Authorization"));
-        System.out.println("🔍 Authentication generada: " + SecurityContextHolder.getContext().getAuthentication());
+        System.out.println("🔍 JwtAuthenticationFilter activado para la solicitud: " + request.getRequestURI());
 
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
             //Validar el token y extraer claim
             Claims claims = jwtService.validarToken(token);
+            System.out.println("🔍 Claims extraídos del token después de validar: " + claims);
             String correo = claims.getSubject();
-            String rol = claims.containsKey("rol") ? claims.get("rol", String.class) : "CLIENTE";
+            System.out.println("🔍 Rol en Claims antes de asignar a la autenticación: " + claims.get("rol"));
+            String rol = (String) claims.get("rol"); //Extraer directamente sin forzar el tipo por el String.class anterior
+            System.out.println("🔍 Rol final después de extracción: " + rol);
             System.out.println("🔍 Usuario extraído del token: " + claims.getSubject());
-            System.out.println("🔍 Rol extraído del token: " + claims.get("rol"));
 
             UserDetails userDetails = User.withUsername(claims.getSubject())
                     .password("")
@@ -49,12 +51,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .build();
             System.out.println("🔍 Claims completos: " + claims);
             System.out.println("🔍 Rol antes de asignarlo en SecurityContextHolder: " + rol);
-            Authentication autenticacion = new UsernamePasswordAuthenticationToken(
-                    correo, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + rol)));
 
-
+            Authentication autenticacion = null;
+            if (rol != null) {
+                autenticacion = new UsernamePasswordAuthenticationToken(
+                        correo, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + rol)));
+                SecurityContextHolder.getContext().setAuthentication(autenticacion);
+                System.out.println("🔍 Authentication final en SecurityContextHolder: " + SecurityContextHolder.getContext().getAuthentication());
+            } else {
+                System.out.println("❌ Error: El rol es NULL y no se asignará la autenticación.");
+            }
             SecurityContextHolder.getContext().setAuthentication(autenticacion);
-            System.out.println("🔍 Authentication establecida en SecurityContextHolder: " + SecurityContextHolder.getContext().getAuthentication());
         }
         filterChain.doFilter(request, response);
     }

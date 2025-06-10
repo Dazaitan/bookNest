@@ -24,6 +24,7 @@ public class LibroServiceImpl implements LibroService{
 
     @Override
     public Optional<Libro> obtenerLibroPorId(Long id) {
+        System.out.println("Ejecutando obtener libro por ID");
         return libroRepository.findById(id);
     }
 

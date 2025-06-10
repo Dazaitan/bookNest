@@ -92,7 +92,11 @@ public class OrdenServiceImpl implements OrdenService{
                     ordenRepository.save(orden);
 
                     // Registrar la transacción
-                    transaccionServiceImpl.registrarTransaccion(orden.getUsuario().getId(), orden, metodoPago);
+                    try {
+                        transaccionServiceImpl.registrarTransaccion(orden.getUsuario().getId(), orden, metodoPago);
+                    } catch (Exception e) {
+                        System.out.println("❌ Error en registrarTransaccion: " + e.getMessage());
+                    }
                     OrdenDTO dto = new OrdenDTO();
                     dto.setId(orden.getId());
                     dto.setEstado(orden.getEstado());

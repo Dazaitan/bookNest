@@ -2,7 +2,6 @@ package com.eCommers.bookNest.controller;
 
 import com.eCommers.bookNest.entity.Libro;
 import com.eCommers.bookNest.services.LibroServiceImpl;
-import org.apache.tomcat.util.http.parser.Authorization;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +20,7 @@ public class LibroController {
     @PostMapping("/crear")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Libro> crearLibro(@RequestBody Libro libro) {
+        System.out.println("🔍 Ejecutando Crear libro en el controlador");
         Libro nuevoLibro = libroService.crearLibro(libro);
         return ResponseEntity.ok(nuevoLibro);
     }

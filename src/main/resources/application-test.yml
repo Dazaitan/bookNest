@@ -4,6 +4,11 @@ spring:
     username: test
     password: test
   jpa:
+    logging:
+      level:
+        org:
+          hibernate:
+            SQL: DEBUG
     hibernate:
       ddl-auto: update
     properties:

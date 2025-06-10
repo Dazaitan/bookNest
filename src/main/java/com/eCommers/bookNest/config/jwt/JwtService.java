@@ -26,15 +26,16 @@ public class JwtService {
     public Claims validarToken(String token) {
         //verificar que el token es válido y extraer datos.
         try {
-            Claims claims = Jwts.parser()
+            return Jwts.parser()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
-            System.out.println("🔍 Claims extraídos del token: " + claims);
-            return claims;
+        } catch (ExpiredJwtException ex) {
+            System.out.println("Token expirado: " + ex.getMessage());
+            throw ex; // Exepcion para tokens expirados
         } catch (Exception e) {
-            System.out.println("❌ Error al validar el token: " + e.getMessage());
+            System.out.println("Error validando token: " + e.getMessage());
             return null;
         }
     }

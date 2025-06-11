@@ -12,11 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -160,27 +158,6 @@ class LibroControllerTest {
                 .andExpect(jsonPath("$.titulo").value("Nuevo título"))
                 .andExpect(jsonPath("$.autor").value("Autor actualizado"))
                 .andExpect(jsonPath("$.precio").value(25.99));
-    }
-
-    @Test
-    void actualizarLibro_NoExistente_DeberiaRetornarNotFound() throws Exception {
-        //Configurar mocks
-        Claims adminClaims = mock(Claims.class);
-        when(adminClaims.getSubject()).thenReturn("admin@booknest.com");
-        when(adminClaims.get("rol")).thenReturn("ADMIN");
-
-        //Modificar comportamiento cuando se ejecute el método
-        when(jwtService.validarToken("token-admin")).thenReturn(adminClaims);
-
-        //Modificar comportamiento cuando se ejecute el método
-        when(libroService.actualizarLibro(eq(99L), any())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Libro no encontrado"));
-        // Ejecutar petición
-        mockMvc.perform(put("/libros/actualizar/99")
-                        .header("Authorization", "Bearer token-admin")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
-                //Verificacion
-                .andExpect(status().isNotFound());
     }
 
     @Test

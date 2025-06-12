@@ -1,11 +1,11 @@
 package com.eCommers.bookNest.services;
 
 import com.eCommers.bookNest.entity.Libro;
+import com.eCommers.bookNest.exceptions.ResourceNotFoundException;
 import com.eCommers.bookNest.repository.LibroRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class LibroServiceImpl implements LibroService{
@@ -23,8 +23,9 @@ public class LibroServiceImpl implements LibroService{
     }
 
     @Override
-    public Optional<Libro> obtenerLibroPorId(Long id) {
-        return libroRepository.findById(id);
+    public Libro obtenerLibroPorId(Long id) {
+        return libroRepository.findById(id).
+                orElseThrow(() -> new ResourceNotFoundException("Libro con ID " + id + " no encontrado."));
     }
 
     @Override
@@ -53,7 +54,7 @@ public class LibroServiceImpl implements LibroService{
                     }
                     return libroRepository.save(libro);
                 })
-                .orElseThrow(() -> new RuntimeException("Libro no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Libro no encontrado"));
     }
 
     @Override

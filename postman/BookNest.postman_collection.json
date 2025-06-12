@@ -1,0 +1,477 @@
+{
+	"info": {
+		"_postman_id": "4fa65935-ef4c-4868-b228-6506e574308f",
+		"name": "BookNest",
+		"description": "### 🔹 **Características Clave**\n\n✅ **Gestión de órdenes:** Los clientes pueden crear y rastrear sus pedidos.  \n✅ **Administración de productos:** Los administradores pueden agregar, actualizar y eliminar productos (Libros).  \n✅ **Notificaciones en tiempo real:** Cada cambio en productos u órdenes se notifica automáticamente a los usuarios.  \n✅ **Historial de transacciones:** Se almacena cada compra y actualización de pedidos para trazabilidad.  \n✅ **Pruebas unitarias:** Se implementan pruebas con `JUnit y Mockito` para asegurar la estabilidad del sistema.\n\n### 🔹 **Tecnologías Utilizadas**\n\n📌 **Backend:** `Spring Boot`, `Spring Security` (autenticación y roles), `Spring Data JPA` (gestión de datos).  \n📌 **Base de datos:** `PostgreSQL`  \n📌 **Pruebas unitarias:** `JUnit` y `Mockito` (simulación de dependencias).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "40951832"
+	},
+	"item": [
+		{
+			"name": "Authentication Managment",
+			"item": [
+				{
+					"name": "Registrarse",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nombre\":\"Jhon Doe\",\r\n    \"correo\":\"jhon.doeadmin@booknest.com\",\r\n    \"contrasena\":\"Pruebas\",\r\n    \"rol\":\"ADMIN\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/usuarios/registrar",
+						"description": "## Endpoint: Registrar un Nuevo Usuario\n\nEste endpoint permite registrar un nuevo usuario en el sistema. Los usuarios registrados pueden iniciar sesión y acceder a las funcionalidades correspondientes a su rol.\n\n---\n\n### **URL**\n\n`POST /usuarios/registrar`\n\n---\n\n### **Descripción**\n\nRegistra un nuevo usuario en la base de datos de la aplicación. Se requiere un cuerpo de solicitud JSON con los detalles del usuario, incluyendo el nombre, correo electrónico, contraseña y el rol deseado.\n\n---\n\n### **Parámetros de Solicitud (Request Body)**\n\nSe espera un objeto JSON en el cuerpo de la solicitud (`application/json`) con los siguientes campos:\n\n| Campo | Tipo de Dato | Obligatorio | Descripción | Ejemplo |\n| --- | --- | --- | --- | --- |\n| `nombre` | `String` | Sí | El nombre completo del usuario. | `\"Jhon Diaz\"` |\n| `correo` | `String` | Sí | La dirección de correo electrónico única del usuario. Debe ser un formato de correo válido. | `\"jhon.diaz_cliente@linktic.com\"` |\n| `contrasena` | `String` | Sí | La contraseña del usuario. Se recomienda una longitud mínima y complejidad. | `\"Pruebas\"` |\n| `rol` | `String` | Sí | El rol asignado al nuevo usuario. Los roles válidos deben ser `ADMIN` o `CLIENTE`. | \"CLIENTE\" |\n\n### **Respuestas (Responses)**\n\n| Código de Estado HTTP | Descripción | Cuerpo de la Respuesta (Ejemplo) |\n| --- | --- | --- |\n| `201 Created` | **Éxito:** El usuario ha sido registrado exitosamente. | `{`\"id\": 5,  <br>\"nombre\": \"Jhon Doe\",  <br>\"correo\": \"[jhon.doe_admin@booknest.com](https://mailto:jhon.doe_admin@booknest.com)\",  <br>\"contrasena\": \"$2a$10$8uj/Dd9DItFa.GEL2UxGv.GDevMVz3HHZWtd75lekpwmY.b3U/vhC\",  <br>\"rol\": \"CLIENTE\",  <br>\"fechaRegistro\": \"2025-06-12T11:23:56.2158109\"`}` |"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful POST request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login?correo=jhon.doe_cliente@booknest.com&contrasena=Pruebas",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							],
+							"query": [
+								{
+									"key": "correo",
+									"value": "jhon.doe_cliente@booknest.com"
+								},
+								{
+									"key": "contrasena",
+									"value": "Pruebas"
+								}
+							]
+						},
+						"description": "## Endpoint: Inicio de Sesión (Login)\n\nEste endpoint permite a los usuarios autenticarse en el sistema para obtener un token de acceso. Una vez autenticado, el token debe ser incluido en las cabeceras de futuras solicitudes a recursos protegidos.\n\n---\n\n### **URL**\n\n`POST /auth/login`\n\n---\n\n### **Descripción**\n\nAutentica a un usuario utilizando su correo electrónico y contraseña. Si las credenciales son válidas, el sistema devuelve un JSON Web Token (JWT) que el cliente debe usar para acceder a endpoints protegidos.\n\n---\n\n### **Parámetros de Solicitud**\n\nLos siguientes parámetros deben ser enviados como parte de la cadena de consulta (query string) en la URL:\n\n| Parámetro | Tipo de Dato | Obligatorio | Descripción | Ejemplo |\n| --- | --- | --- | --- | --- |\n| `correo` | `String` | Sí | La dirección de correo electrónico del usuario. | `jhon.doe_cliente@booknest.com` |\n| `contrasena` | `String` | Sí | La contraseña del usuario. | `Pruebas` |\n\n### **Respuestas (Responses)**\n\n| Código de Estado HTTP | Descripción | Cuerpo de la Respuesta (Ejemplo) |\n| --- | --- | --- |\n| `200 OK` | **Éxito:** El usuario ha sido autenticado exitosamente y se ha emitido un token. | `{ \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ...\"}` |"
+					},
+					"response": []
+				}
+			],
+			"description": "los **endpoints y la lógica central para la autenticación y gestión de sesiones de usuario** dentro de la aplicación. Su propósito principal es asegurar que solo los usuarios verificados puedan acceder a los recursos protegidos y gestionar sus credenciales de forma segura."
+		},
+		{
+			"name": "Libro Managment",
+			"item": [
+				{
+					"name": "Obtener libros (publico)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful PUT request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/libros/todos",
+						"description": "### 1\\. Obtener Todos los Libros\n\nEste endpoint recupera una lista de todos los libros disponibles en la base de datos.\n\n### **URL**\n\n`GET /libros/todos`\n\n---\n\n### **Descripción**\n\nRetorna una lista de todos los objetos `Libro` almacenados en la base de datos. Este endpoint es de acceso público y no requiere autenticación.\n\n---\n\n### **Parámetros de Solicitud**\n\nNinguno.\n\n---\n\n### **Ejemplo de Solicitud**\n\nHTTP\n\n```\nGET /libros/todos HTTP/1.1\nHost: http://localhost:8080\n\n ```\n\n---\n\n### **Respuestas (Responses)**\n\n| Código de Estado HTTP | Descripción | Cuerpo de la Respuesta (Ejemplo) |\n| --- | --- | --- |\n| `200 OK` | **Éxito:** Retorna una lista de libros. Si no hay libros, retorna una lista vacía. | `json [ { \"id\": 1, \"titulo\": \"Cien años de soledad\", \"autor\": \"Gabriel García Márquez\", \"precio\": 19.99, \"stock\": 100 }, { \"id\": 2, \"titulo\": \"El Principito\", \"autor\": \"Antoine de Saint-Exupéry\", \"precio\": 12.50, \"stock\": 50 } ]` |"
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar libro por Id (Rol admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAbGlua3RpYy5jb20iLCJyb2wiOiJBRE1JTiIsImlhdCI6MTc0OTc0Njk4NSwiZXhwIjoxNzQ5ODMzMzg1fQ.iThKYBglbYSwyWVYaytDUvK1sTjfH_frNO_E0vl3gaA",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/libros/eliminar/{{id}}",
+						"description": "## Endpoint: Eliminar Libro por ID\n\nEste endpoint permite a los usuarios con rol de `ADMIN` eliminar un libro existente del catálogo del sistema.\n\n---\n\n### **URL**\n\n`DELETE /libros/eliminar/{id}`\n\n---\n\n### **Descripción**\n\nElimina un registro de libro de la base de datos utilizando su identificador único. Una vez eliminado, el libro ya no estará disponible en el catálogo. **Este endpoint requiere que el usuario esté autenticado y tenga el rol** **`ADMIN`** **para poder realizar la operación.**\n\n---\n\n### **Parámetros de Ruta**\n\nLos siguientes parámetros deben ser incluidos en la ruta de la URL:\n\n| Parámetro | Tipo de Dato | Obligatorio | Descripción | Ejemplo |\n| --- | --- | --- | --- | --- |\n| `id` | `Long` | Sí | El **identificador único** del libro a eliminar. | `1` |\n\n### **Cabeceras de Solicitud (Request Headers)**\n\nEste endpoint requiere autenticación mediante un token JWT válido.\n\n| Cabecera | Valor de Ejemplo |\n| --- | --- |\n| `Authorization` | `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAbGlua3RpYy5jb20iLCJyb2wiOiJB` |\n\n### **Ejemplo de Solicitud**\n\nHTTP\n\n```\nDELETE /libros/eliminar/1 HTTP/1.1\nHost: http://localhost:8080\nAuthorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAbGlua3RpYy5jb20iLCJyb2wiOiJBRE1JTiIsImlhdCI6MTc0Nzc1ODM5NCwiZXhwIjoxNzQ3ODQ0Nzk0fQ.f9giQ2lV4w744XCC_jNV_qUVliF5zLRFOznov3y2Ajk\n\n ```\n\n---\n\n### Respuesta de la solicitud (Response)\n\n| Código de Estado HTTP | Descripción | Cuerpo de la Respuesta (Ejemplo) |\n| --- | --- | --- |\n| `204 No Content` | **Éxito:** El libro ha sido eliminado exitosamente. Este código indica que la operación fue exitosa pero no hay contenido que devolver. | `(Cuerpo vacío)` |"
+					},
+					"response": []
+				},
+				{
+					"name": "Crear nuevo libro (Rol admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAbGlua3RpYy5jb20iLCJyb2wiOiJBRE1JTiIsImlhdCI6MTc0Nzc1ODM5NCwiZXhwIjoxNzQ3ODQ0Nzk0fQ.f9giQ2lV4w744XCC_jNV_qUVliF5zLRFOznov3y2Ajk",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"titulo\":\"Noches blancas y otros cuentos\",\r\n    \"autor\":\"Fiodor Dostoievski\",\r\n    \"precio\": 50.000,\r\n    \"stock\": 5\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/libros/crear",
+						"description": "## Endpoint: Crear Nuevo Libro\n\nEste endpoint permite a los usuarios con rol de `ADMIN` añadir un nuevo libro al catálogo del sistema.\n\n---\n\n### **URL**\n\n`POST /libros/crear`\n\n---\n\n### **Descripción**\n\nCrea un nuevo registro de libro en la base de datos con los detalles proporcionados. **Este endpoint requiere que el usuario esté autenticado y tenga el rol** **`ADMIN`** **para poder realizar la operación.**\n\n---\n\n### **Parámetros de Solicitud (Request Body)**\n\nSe espera un objeto JSON en el cuerpo de la solicitud (`application/json`) con los siguientes campos:\n\n| Campo | Tipo de Dato | Obligatorio | Descripción | Ejemplo |\n| --- | --- | --- | --- | --- |\n| `titulo` | `String` | Sí | El título del libro. | `\"Noches blancas y otros cuentos\"` |\n| `autor` | `String` | Sí | El nombre del autor del libro. | `\"Fiodor Dostoievski\"` |\n| `precio` | `Double` | Sí | El precio de venta del libro. | `50.000` |\n| `stock` | `Integer` | Sí | La cantidad inicial de unidades disponibles en stock. | `5` |\n\n### **Cabeceras de Solicitud (Request Headers)**\n\nEste endpoint requiere autenticación mediante un token JWT válido.\n\n| Cabecera | Valor de Ejemplo | Descripción |\n| --- | --- | --- |\n| `Authorization` | `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAbGlua3RpYy5jb20iLCJyb2wiOiJBRE1JTiIsImlhdCI6MTc0Nzc1ODM5NCwiZXhwIjoxNzQ3ODQ0Nzk0fQ.f9giQ2lV4w744XCC_jNV_qUVliF5zLRFOznov3y2Ajk` | Un token JWT válido obtenido del endpoint `/auth/login`. Debe comenzar con `Bearer` (incluyendo el espacio). |\n| `Content-Type` | `application/json` | Indica que el cuerpo de la solicitud es JSON. |\n\n### **Ejemplo de Solicitud**\n\nHTTP\n\n```\nPOST /libros/crear HTTP/1.1\nHost: http://localhost:8080\nContent-Type: application/json\nAuthorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAbGlua3RpYy5jb20iLCJyb2wiOiJBRE1JTiIsImlhdCI6MTc0Nzc1ODM5NCwiZXhwIjoxNzQ3ODQ0Nzk0fQ.f9giQ2lV4w744XCC_jNV_qUVliF5zLRFOznov3y2Ajk\n{\n    \"titulo\": \"Noches blancas y otros cuentos\",\n    \"autor\": \"Fiodor Dostoievski\",\n    \"precio\": 50.000,\n    \"stock\": 5\n}\n\n ```\n\n### **Respuestas (Responses)**\n\n| Código de Estado HTTP | Descripción | Cuerpo de la Respuesta (Ejemplo) |\n| --- | --- | --- |\n| `201 Created` | **Éxito:** El libro ha sido creado y añadido al catálogo. | `json { \"id\": 3, \"titulo\": \"Noches blancas y otros cuentos\", \"autor\": \"Fiodor Dostoievski\", \"precio\": 50.000, \"stock\": 5 }` |"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener libro por Id (publico)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": "{{base_url}}/libros/{{id}}",
+						"description": "## Endpoint: Obtener Libro por ID (Público)\n\nEste endpoint permite a cualquier usuario, incluso sin autenticación, recuperar los detalles de un libro específico utilizando su identificador único.\n\n---\n\n### **URL**\n\n`GET /libros/{id}`\n\n---\n\n### **Descripción**\n\nRetorna los detalles completos de un libro específico basándose en su ID. Este endpoint es de acceso público y no requiere autenticación. Es útil para visualizar la información de un libro en particular dentro del catálogo.\n\n---\n\n### **Parámetros de Ruta (Path Parameters)**\n\nLos siguientes parámetros deben ser incluidos en la ruta de la URL:\n\n| Parámetro | Tipo de Dato | Obligatorio | Descripción | Ejemplo |\n| --- | --- | --- | --- | --- |\n| `id` | `Long` | Sí | El **identificador único** del libro a recuperar. | `1` |\n\n### **Ejemplo de Solicitud**\n\nHTTP\n\n```\nGET /libros/1 HTTP/1.1\nHost: http://localhost:8080\n\n ```\n\n---\n\n### **Respuestas (Responses)**\n\n| Código de Estado HTTP | Descripción | Cuerpo de la Respuesta (Ejemplo) |\n| --- | --- | --- |\n| `200 OK` | **Éxito:** Retorna el objeto `Libro` con el ID especificado. | `json { \"id\": 1, \"titulo\": \"Cien años de soledad\", \"autor\": \"Gabriel García Márquez\", \"precio\": 19.99, \"stock\": 100 }` |"
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar libro por Id (Rol admin)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAbGlua3RpYy5jb20iLCJyb2wiOiJBRE1JTiIsImlhdCI6MTc0OTc0Njk4NSwiZXhwIjoxNzQ5ODMzMzg1fQ.iThKYBglbYSwyWVYaytDUvK1sTjfH_frNO_E0vl3gaA",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"titulo\":\"Noches blancas y otros cuentos\",\r\n    \"autor\":\"Fiodor Dostoievski\",\r\n    \"precio\": 100000,\r\n    \"stock\": 10\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/libros/actualizar/{{id}}",
+						"description": "## Endpoint: Actualizar Libro por ID\n\nEste endpoint permite a los usuarios con rol de `ADMIN` actualizar la información de un libro existente en el catálogo del sistema.\n\n---\n\n### **URL**\n\n`PUT /libros/actualizar/{id}`\n\n---\n\n### **Descripción**\n\nActualiza los detalles de un libro específico en la base de datos utilizando su identificador único. Los campos proporcionados en el cuerpo de la solicitud actualizarán los valores existentes del libro. **Este endpoint requiere que el usuario esté autenticado y tenga el rol** **`ADMIN`** **para poder realizar la operación.**\n\n### **Parámetros de Ruta (Path Parameters)**\n\nLos siguientes parámetros deben ser incluidos en la ruta de la URL:\n\n| Parámetro | Tipo de Dato | Obligatorio | Descripción | Ejemplo |\n| --- | --- | --- | --- | --- |\n| `id` | `Long` | Sí | El **identificador único** del libro a actualizar. | `1` |\n\n### **Parámetros de Solicitud (Request Body)**\n\nSe espera un objeto JSON en el cuerpo de la solicitud (`application/json`) con los campos del libro que se desean actualizar. No es necesario enviar todos los campos si solo se quieren modificar algunos.\n\n| Campo | Tipo de Dato | Obligatorio | Descripción | Ejemplo |\n| --- | --- | --- | --- | --- |\n| `titulo` | `String` | No | El nuevo título del libro. | `\"Noches blancas\"` |\n| `autor` | `String` | No | El nuevo nombre del autor del libro. | `\"Fiodor D.\"` |\n| `precio` | `Double` | No | El nuevo precio de venta del libro. | `55.000` |\n| `stock` | `Integer` | No | La nueva cantidad de unidades disponibles en stock. | `10` |\n\n### **Cabeceras de Solicitud (Request Headers)**\n\nEste endpoint requiere autenticación mediante un token JWT válido.\n\n| Cabecera | Valor de Ejemplo | Descripción |\n| --- | --- | --- |\n| `Authorization` | `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAbGlua3RpYy5jb20iLCJyb2wiOiJBRE1JTiIsImlhdCI6MTc0Nzc1ODM5NCwiZXhwIjoxNzQ3ODQ0Nzk0fQ.f9giQ2lV4w744XCC_jNV_qUVliF5zLRFOznov3y2Ajk` | Un token JWT válido obtenido del endpoint `/auth/login`. Debe comenzar con `Bearer` (incluyendo el espacio). |\n| `Content-Type` | `application/json` |  |\n\n### **Respuestas (Responses)**\n\n| Código de Estado HTTP | Descripción | Cuerpo de la Respuesta (Ejemplo) |\n| --- | --- | --- |\n| `200 OK` | **Éxito:** El libro ha sido actualizado y se devuelve el objeto `Libro` con los nuevos datos. | `json { \"id\": 1, \"titulo\": \"Noches blancas y otros cuentos\", \"autor\": \"Fiodor Dostoievski\", \"precio\": 55.000, \"stock\": 5 }` |"
+					},
+					"response": []
+				}
+			],
+			"description": "Los endpoints de libros te brindan acceso completo al catálogo de la librería, permitiéndote explorar y gestionar la colección disponible. Aquí, cualquier usuario puede **consultar la lista completa de libros** o **buscar los detalles de un libro específico** por su identificador.\n\nAdemás, para mantener el catálogo siempre actualizado, los administradores tienen la capacidad de **añadir nuevos títulos**, **modificar la información de libros existentes** y **eliminar aquellos que ya no estén disponibles**, asegurando así una gestión eficiente de los recursos literarios."
+		},
+		{
+			"name": "Orden Managment",
+			"item": [
+				{
+					"name": "Crear orden",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRvZV9jbGllbnRlQGJvb2tuZXN0LmNvbSIsInJvbCI6IkNMSUVOVEUiLCJpYXQiOjE3NDk3NTAwNDAsImV4cCI6MTc0OTgzNjQ0MH0.Nk3heezs7QrZWYyymr_UnL_nTvMvqElZKvoFQ31CsEs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n    \"estado\": \"PENDIENTE\",\r\n    \"librosOrdenados\": [\r\n        {\r\n            \"libro\": { \"id\": 2 },\r\n            \"cantidad\": 3,\r\n            \"precioUnitario\": 45.99\r\n        },\r\n        {\r\n            \"libro\": { \"id\": 3 },\r\n            \"cantidad\": 1,\r\n            \"precioUnitario\": 30.50\r\n        }\r\n    ]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/ordenes/crear",
+						"description": "## Endpoint: Crear Nueva Orden\n\nEste endpoint permite a los **usuarios autenticados con el rol** **`CLIENTE`** crear una nueva orden, especificando los libros que desean adquirir y sus cantidades.\n\n---\n\n### **URL**\n\n`POST /ordenes/crear`\n\n---\n\n### **Descripción**\n\nCrea un nuevo registro de orden en el sistema. La orden incluye una lista de libros con sus respectivas cantidades y precios unitarios al momento de la orden. **Este endpoint requiere que el usuario esté autenticado y posea el rol** **`CLIENTE`** **para poder realizar la operación.**\n\n---\n\n### **Parámetros de Solicitud (Request Body)**\n\nSe espera un objeto JSON en el cuerpo de la solicitud (`application/json`) con los siguientes campos:\n\n| Campo | Tipo de Dato | Obligatorio | Descripción | Ejemplo |\n| --- | --- | --- | --- | --- |\n| `estado` | `String` | Sí | El estado inicial de la orden. Típicamente `\"PENDIENTE\"` para nuevas órdenes. | `\"PENDIENTE\"` |\n| `librosOrdenados` | `Array` | Sí | Una lista de objetos, cada uno representando un libro incluido en la orden. | Ver ejemplo más abajo |\n| `libro` (Objeto) | `Object` | Sí | Objeto que contiene solo el ID del libro. | `{ \"id\": 2 }` |\n| `id` | `Long` | Sí | El **ID del libro** que se está ordenando. | `2` |\n| `cantidad` | `Integer` | Sí | La cantidad de este libro específico a ordenar. Debe ser un valor positivo. | `3` |\n| `precioUnitario` | `Double` | Sí | El precio unitario del libro en el momento de la orden. Esto previene cambios de precio posteriores. | `45.99` |\n\n### **Cabeceras de Solicitud (Request Headers)**\n\nEste endpoint requiere autenticación mediante un token JWT válido, asociado a un usuario con el rol `CLIENTE`.\n\n| Cabecera | Valor de Ejemplo | Descripción |\n| --- | --- | --- |\n| `Authorization` | `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAY2xpZW50ZS5jb20iLCJyb2wiOiJDTElFTlRFIiwiaWF0IjoxNzQ3NzU4Mzk0LCJleHAiOjE3NDc4NDQ3OTR9.xyz...` | Un token JWT válido obtenido del endpoint `/auth/login`. Debe comenzar con `Bearer` (incluyendo el espacio). |\n| `Content-Type` | `application/json` |  |\n\n### **Respuestas (Responses)**\n\n| Código de Estado HTTP | Descripción | Cuerpo de la Respuesta (Ejemplo) |\n| --- | --- | --- |\n| `201 Created` | **Éxito:** La orden ha sido creada exitosamente. Se devuelve la orden completa, incluyendo su ID generado y detalles de los libros ordenados. | `json { \"id\": 19, \"usuarioId\": 3, \"fecha\": \"2025-06-12T12:40:56.93281\", \"estado\": \"PENDIENTE\", \"librosOrdenados\": [ { \"libroId\": 2, \"titulo\": \"Noches blancas y otros cuentos\", \"cantidad\": 3, \"precioUnitario\": 45.99 }, { \"libroId\": 3, \"titulo\": \"Heroe de las eras\", \"cantidad\": 1, \"precioUnitario\": 30.5 } ] }` |"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener orden por Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRvZV9jbGllbnRlQGJvb2tuZXN0LmNvbSIsInJvbCI6IkNMSUVOVEUiLCJpYXQiOjE3NDk3NTAwNDAsImV4cCI6MTc0OTgzNjQ0MH0.Nk3heezs7QrZWYyymr_UnL_nTvMvqElZKvoFQ31CsEs",
+								"type": "text"
+							}
+						],
+						"url": "{{base_url}}/ordenes/{{id}}",
+						"description": "## Endpoint: Obtener Orden por ID\n\nEste endpoint permite a un **usuario autenticado (el** **`CLIENTE`****)** recuperar los detalles de una orden específica utilizando su identificador único.\n\n---\n\n### **URL**\n\n`GET /ordenes/{id}`\n\n---\n\n### **Descripción**\n\nRetorna los detalles completos de una orden específica basándose en su ID. **Este endpoint requiere que el usuario esté autenticado con un usuario que tenga el rol CLIENTE.**\n\n---\n\n### **Parámetros de Ruta (Path Parameters)**\n\nLos siguientes parámetros deben ser incluidos en la ruta de la URL:\n\n| Parámetro | Tipo de Dato | Obligatorio | Descripción | Ejemplo |\n| --- | --- | --- | --- | --- |\n| `id` | `Long` | Sí | El **identificador único** de la orden a recuperar. | `19` |\n\n### **Cabeceras de Solicitud (Request Headers)**\n\nEste endpoint requiere autenticación mediante un token JWT válido.\n\n| Cabecera | Valor de Ejemplo | Descripción |\n| --- | --- | --- |\n| `Authorization` | `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAY2xpZW50ZS5jb20iLCJyb2wiOiJDTElFTlRFIi` | Un token JWT válido obtenido del endpoint /auth/login. Debe comenzar con Bearer (incluyendo el espacio). |\n\n### **Ejemplo de Solicitud**\n\n```\nGET /ordenes/19 HTTP/1.1\nHost: http://localhost:8080\nAuthorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAY2xpZW50ZS5jb20iLCJyb2wiOiJDTElFTlRFIiwiaWF0I\n\n ```\n\n### **Respuestas (Responses)**\n\n| Código de Estado HTTP | Descripción | Cuerpo de la Respuesta (Ejemplo) |\n| --- | --- | --- |\n| `200 OK` | **Éxito:** Retorna el objeto `Orden` con el ID especificado. | `json { \"id\": 19, \"usuarioId\": 3, \"fecha\": \"2025-06-12T12:40:56.93281\", \"estado\": \"PENDIENTE\", \"librosOrdenados\": [ { \"libroId\": 2, \"titulo\": \"Noches blancas y otros cuentos\", \"cantidad\": 3, \"precioUnitario\": 45.99 }, { \"libroId\": 3, \"titulo\": \"Heroe de las eras\", \"cantidad\": 1, \"precioUnitario\": 30.5 } ] }` |"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener ordenes por usuario",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRvZV9jbGllbnRlQGJvb2tuZXN0LmNvbSIsInJvbCI6IkNMSUVOVEUiLCJpYXQiOjE3NDk3NTAwNDAsImV4cCI6MTc0OTgzNjQ0MH0.Nk3heezs7QrZWYyymr_UnL_nTvMvqElZKvoFQ31CsEs",
+								"type": "text"
+							}
+						],
+						"url": "{{base_url}}/ordenes/usuario/{{id}}",
+						"description": "## Endpoint: Obtener Órdenes de un Usuario Específico\n\nEste endpoint permite a un **usuario autenticado (con el rol** **`CLIENTE`**)** recuperar una lista de todas las órdenes asociadas a un `usuarioId` dado.\n\n---\n\n### **URL**\n\n`GET /ordenes/usuario/{id}`\n\n---\n\n### **Descripción**\n\nRetorna una lista de todas las órdenes creadas por un usuario cuyo ID coincide con el `{id}` proporcionado en la ruta. **Este endpoint requiere que el usuario esté autenticado.** Solo el usuario con el `id` especificado (con rol `CLIENTE`) pueden acceder a esta información.\n\n---\n\n### **Parámetros de Ruta (Path Parameters)**\n\nLos siguientes parámetros deben ser incluidos en la ruta de la URL:\n\n| Parámetro | Tipo de Dato | Obligatorio | Descripción | Ejemplo |\n| --- | --- | --- | --- | --- |\n| `id` | `Long` | Sí | El **identificador único del usuario** cuyas órdenes se desean recuperar. | `3` |\n\n### **Cabeceras de Solicitud (Request Headers)**\n\nEste endpoint requiere autenticación mediante un token JWT válido.\n\n| Cabecera | Valor de Ejemplo | Descripción |\n| --- | --- | --- |\n| `Authorization` | `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAY2xpZW50ZS5jb20iLCJyb2wiOiJDTElFTlRFIiwiaWF0IjoxNzQ3NzU4Mzk0LCJleHAiOjE3NDc4NDQ3OTR9.xyz...` | Un token JWT válido obtenido del endpoint `/auth/login`. Debe comenzar con `Bearer` (incluyendo el espacio). |\n\n### **Ejemplo de Solicitud**\n\nHTTP\n\n```\nGET /ordenes/usuario/3 HTTP/1.1\nHost: tu-dominio.com\nAuthorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAY2xpZW50ZS5jb20iLCJyb2wiOiJDTElFTlRFIiwiaWF0IjoxNzQ3NzU4Mzk0LCJleHAiOjE3NDc4NDQ3OTR9.xyz...\n\n ```\n\n---\n\n### **Respuestas (Responses)**\n\n| Código de Estado HTTP | Descripción | Cuerpo de la Respuesta (Ejemplo) |\n| --- | --- | --- |\n| `200 OK` | **Éxito:** Retorna una lista de órdenes asociadas al `usuarioId` especificado. Si el usuario no tiene órdenes, la lista estará vacía. | `json [ { \"id\": 19, \"usuarioId\": 3, \"fecha\": \"2025-06-12T12:40:56.93281\", \"estado\": \"PENDIENTE\", \"librosOrdenados\": [ { \"libroId\": 2, \"titulo\": \"Noches blancas y otros cuentos\", \"cantidad\": 3, \"precioUnitario\": 45.99 } ] }, { \"id\": 20, \"usuarioId\": 3, \"fecha\": \"2025-06-10T09:15:00.000Z\", \"estado\": \"COMPLETADA\", \"librosOrdenados\": [ { \"libroId\": 1, \"titulo\": \"Cien años de soledad\", \"cantidad\": 1, \"precioUnitario\": 19.99 } ] } ]` |\n| `401 Unauthorized` | **No Autorizado:**  <br>\\- No se proporcionó un token de autenticación.  <br>\\- El token proporcionado es inválido o ha expirado. | `(Cuerpo vacío)` |\n| `403 Forbidden` | **Prohibido:**  <br>\\- El token es válido, pero el usuario no tiene los permisos para ver las órdenes del `usuarioId` especificado (ej. un `CLIENTE` intentando ver órdenes de otro `CLIENTE`). | `(Cuerpo vacío)` |\n| `404 Not Found` | **No Encontrado:** No se encontró ningún usuario con el `id` proporcionado. | `(Cuerpo vacío)` |"
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar orden",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRvZWFkbWluQGJvb2tuZXN0LmNvbSIsInJvbCI6IkFETUlOIiwiaWF0IjoxNzQ5NzU1MDkyLCJleHAiOjE3NDk4NDE0OTJ9.0cvKc2KiDeY6imL_4lOfubh-HZwyZZEpzsAMseRKUBs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\"EN_PROCESO\"",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/ordenes/actualizar-estado/{{id}}",
+						"description": "StartFragment\n\n## Endpoint: Actualizar Estado de Orden por ID\n\nEste endpoint permite a los **usuarios con el rol** **`ADMIN`** actualizar el estado de una orden específica en el sistema.\n\n---\n\n### **URL**\n\n`PUT /ordenes/actualizar-estado/{id}`\n\n---\n\n### **Descripción**\n\nActualiza el estado de una orden existente, identificado por su `{id}`. El nuevo estado se envía en el cuerpo de la solicitud como una cadena de texto. **Este endpoint requiere que el usuario esté autenticado y posea el rol** **`ADMIN`** **para poder realizar la operación.**\n\n---\n\n### **Parámetros de Ruta (Path Parameters)**\n\nLos siguientes parámetros deben ser incluidos en la ruta de la URL:\n\n| Parámetro | Tipo de Dato | Obligatorio | Descripción | Ejemplo |\n| --- | --- | --- | --- | --- |\n| `id` | `Long` | Sí | El **identificador único** de la orden cuyo estado se desea actualizar. | `19` |\n\n### **Parámetros de Solicitud (Request Body)**\n\nSe espera un objeto JSON en el cuerpo de la solicitud (`application/json`) con el siguiente campo:\n\n| Campo | Tipo de Dato | Obligatorio | Descripción | Ejemplo |\n| --- | --- | --- | --- | --- |\n| `estado` | `String` | Sí | El nuevo estado de la orden. Los valores válidos deberían incluir estados como `\"EN_PROCESO\"`, `\"ENVIADA\"`, `\"COMPLETADA\"`, `\"CANCELADA\"`. | `\"EN_PROCESO\"` |\n\n### **Cabeceras de Solicitud (Request Headers)**\n\nEste endpoint requiere autenticación mediante un token JWT válido, asociado a un usuario con el rol `ADMIN`.\n\n| Cabecera | Valor de Ejemplo | Descripción |\n| --- | --- | --- |\n| `Authorization` | `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAbGlua3RpYy5jb20iLCJyb2wiOiJBRE1JTiIsImlhdCI6MTc0Nzc1ODM5NCwiZXhwIjoxNzQ3ODQ0Nzk0fQ.f9giQ2lV4w744XCC_jNV_qUVliF5zLRFOznov3y2Ajk` | Un token JWT válido obtenido del endpoint `/auth/login`. Debe comenzar con `Bearer` (incluyendo el espacio). |\n| `Content-Type` | `application/json` |  |\n\n### **Ejemplo de Solicitud**\n\nHTTP\n\n```\nPUT /ordenes/actualizar-estado/19 HTTP/1.1\nHost: tu-dominio.com\nContent-Type: application/json\nAuthorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAbGlua3RpYy5jb20iLCJyb2wiOiJBRE1JTiIsImlhdCI6MTc0Nzc1ODM5NCwiZXhwIjoxNzQ3ODQ0Nzk0fQ.f9giQ2lV4w744XCC_jNV_qUVliF5zLRFOznov3y2Ajk\n\"EN_PROCESO\"\n\n ```\n\n### **Respuestas (Responses)**\n\n| Código de Estado HTTP | Descripción | Cuerpo de la Respuesta (Ejemplo) |\n| --- | --- | --- |\n| `200 OK` | **Éxito:** El estado de la orden ha sido actualizado. Se devuelve la orden completa con el nuevo estado. | `json { \"id\": 19, \"usuarioId\": 3, \"fecha\": \"2025-06-12T12:40:56.93281\", \"estado\": \"EN_PROCESO\", \"librosOrdenados\": [ { \"libroId\": 2, \"titulo\": \"Noches blancas y otros cuentos\", \"cantidad\": 3, \"precioUnitario\": 45.99 }, { \"libroId\": 3, \"titulo\": \"Heroe de las eras\", \"cantidad\": 1, \"precioUnitario\": 30.5 } ] }` |\n| `400 Bad Request` | **Error de Solicitud:**  <br>\\- El estado proporcionado no es válido o no está permitido para la transición actual de la orden. | `(Cuerpo vacío )` |\n| `401 Unauthorized` | **No Autorizado:**  <br>\\- No se proporcionó un token de autenticación.  <br>\\- El token proporcionado es inválido o ha expirado. | `(Cuerpo vacío )` |\n| `403 Forbidden` | **Prohibido:**  <br>\\- El token es válido, pero el usuario **no tiene el rol** **`ADMIN`** para realizar esta acción. | `(Cuerpo vacío )` |\n| `404 Not Found` | **No Encontrado:** No se encontró ninguna orden con el `id` proporcionado para actualizar. | `(Cuerpo vacío )` |"
+					},
+					"response": []
+				},
+				{
+					"name": "Completar orden",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRvZV9jbGllbnRlQGJvb2tuZXN0LmNvbSIsInJvbCI6IkNMSUVOVEUiLCJpYXQiOjE3NDk3NTcyMjksImV4cCI6MTc0OTg0MzYyOX0.BuyNQDbw1q2cVBIKPkU7vHJKcFU2cAiDjjdmQmV1R_Q",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "\"Tarjeta de crédito\"",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/ordenes/completar/{{id}}",
+						"description": "## Endpoint: Completar Orden por ID\n\nEste endpoint permite a los **usuarios con el rol** **`ADMIN`** marcar una orden específica como \"COMPLETADA\", **registrando o confirmando el método de pago** en este paso.\n\n---\n\n### **URL**\n\n`PUT /ordenes/completar/{id}`\n\n---\n\n### **Descripción**\n\nActualiza el estado de una orden específica a \"COMPLETADA\". Esta operación es el paso final en el procesamiento de una orden y **requiere la especificación del método de pago utilizado para la orden**. **Este endpoint requiere que el usuario esté autenticado y posea el rol** **`ADMIN`** **para poder realizar la operación.**\n\n### **Parámetros de Ruta (Path Parameters)**\n\nLos siguientes parámetros deben ser incluidos en la ruta de la URL:\n\n| Parámetro | Tipo de Dato | Obligatorio | Descripción | Ejemplo |\n| --- | --- | --- | --- | --- |\n| `id` | `Long` | Sí | El **identificador único** de la orden a completar. | `19` |\n\n### **Parámetros de Solicitud (Request Body)**\n\nSe espera un objeto JSON en el cuerpo de la solicitud (`application/json`) con el siguiente campo:\n\n| Campo | Tipo de Dato | Obligatorio | Descripción | Ejemplo |\n| --- | --- | --- | --- | --- |\n| `metodoPago` | `String` | Sí | El método de pago final o confirmado para esta orden. Los valores válidos pueden incluir `\"Tarjeta de crédito\"`, `\"Efectivo\"`, `\"Transferencia\"`, etc. | `\"Tarjeta de crédito\"` |\n\n### **Cabeceras de Solicitud (Request Headers)**\n\nEste endpoint requiere autenticación mediante un token JWT válido, asociado a un usuario con el rol `ADMIN`.\n\n| Cabecera | Valor de Ejemplo | Descripción |\n| --- | --- | --- |\n| `Authorization` | `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAbGlua3RpYy5jb20iLCJyb2wiOiJBRE1JTiIsImlhdCI6MTc0Nzc1ODM5NCwiZXhwIjoxNzQ3ODQ0Nzk0fQ.f9giQ2lV4w744XCC_jNV_qUVliF5zLRFOznov3y2Ajk` | Un token JWT válido obtenido del endpoint `/auth/login`. Debe comenzar con `Bearer` (incluyendo el espacio). |\n| `Content-Type` | `application/json` | Indica que el cuerpo de la solicitud es JSON. |\n\n### **Ejemplo de Solicitud**\n\nHTTP\n\n```\nPUT /ordenes/completar/19 HTTP/1.1\nHost: http://localhost:8080\nContent-Type: application/json\nAuthorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAbGlua3RpYy5jb20iLCJyb2wiOiJBRE1JTiIsImlhdCI6MTc0Nzc1ODM5NCwiZXhwIjoxNzQ3ODQ0Nzk0fQ.f9giQ2lV4w744XCC_jNV_qUVliF5zLRFOznov3y2Ajk\n\"Tarjeta de crédito\"\n\n ```\n\n### **Respuestas (Responses)**\n\n| Código de Estado HTTP | Descripción | Cuerpo de la Respuesta (Ejemplo) |\n| --- | --- | --- |\n| `200 OK` | **Éxito:** La orden ha sido marcada como \"COMPLETADA\" y el método de pago registrado. Se devuelve la orden con su estado y método de pago actualizados. | `json { \"id\": 19, \"usuarioId\": 3, \"fecha\": \"2025-06-12T12:40:56.93281\", \"estado\": \"COMPLETADA\", \"metodoPago\": \"Tarjeta de crédito\", \"librosOrdenados\": [ { \"libroId\": 2, \"titulo\": \"Noches blancas y otros cuentos\", \"cantidad\": 3, \"precioUnitario\": 45.99 }, { \"libroId\": 3, \"titulo\": \"Heroe de las eras\", \"cantidad\": 1, \"precioUnitario\": 30.5 } ] }` |"
+					},
+					"response": []
+				}
+			],
+			"description": "Estos endpoints son utilizados en el proceso de compra de la librería, permitiéndote gestionar el ciclo de vida de las transacciones. Aquí puedes **crear nuevas órdenes** con los libros que deseas, **consultar el estado de tus compras** en cualquier momento, y para los administradores, **actualizar el estado de las órdenes**, e incluso **marcar una orden como completada** una vez que ha sido entregada y pagada."
+		},
+		{
+			"name": "Notificacion Managment",
+			"item": [
+				{
+					"name": "Ver notificaciones",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRvZWFkbWluQGJvb2tuZXN0LmNvbSIsInJvbCI6IkFETUlOIiwiaWF0IjoxNzQ5NzU4NTIwLCJleHAiOjE3NDk4NDQ5MjB9.vfuVY4AMwmTIp5eszPczdH5ZIdw43U9TbDv5CYIDMM4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": "{{base_url}}/notificaciones/usuario",
+						"description": "## Endpoint: Obtener Notificaciones del Usuario Autenticado\n\nEste endpoint permite a un **usuario autenticado (con rol** **`CLIENTE`** **o** **`ADMIN`****)** recuperar una lista de todas sus notificaciones pendientes o registradas en el sistema.\n\n---\n\n### **URL**\n\n`GET /notificaciones/usuario`\n\n---\n\n### **Descripción**\n\nRetorna una lista de todas las notificaciones asociadas al usuario que realiza la solicitud (identificado por su token JWT). Este endpoint es útil para que los usuarios puedan ver sus alertas sobre órdenes, actualizaciones de libros, etc. **Este endpoint requiere que el usuario esté autenticado.**\n\n### **Parámetros de Solicitud**\n\nNinguno. El ID del usuario se obtiene del token de autenticación.\n\n---\n\n### **Cabeceras de Solicitud (Request Headers)**\n\nEste endpoint requiere autenticación mediante un token JWT válido.\n\n| Cabecera | Valor de Ejemplo | Descripción |\n| --- | --- | --- |\n| `Authorization` | `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAY2xpZW50ZS5jb20iLCJyb2wiOiJDTElFTlRFIiwiaWF0IjoxNzQ3NzU4Mzk0LCJleHAiOjE3NDc4NDQ3OTR9.xyz...` | Un token JWT válido obtenido del endpoint `/auth/login`. Debe comenzar con `Bearer` (incluyendo el espacio). |\n\n### **Ejemplo de Solicitud**\n\nHTTP\n\n```\nGET /notificaciones/usuario HTTP/1.1\nHost: http://localhost:8080\nAuthorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAY2xpZW50ZS5jb20iLCJyb2wiOiJDTElFTlRFIiwiaWF0IjoxNzQ3NzU4Mzk0LCJleHAiOjE3NDc4NDQ3OTR9.xyz...\n\n ```\n\n---\n\n### **Respuestas (Responses)**\n\n| Código de Estado HTTP | Descripción | Cuerpo de la Respuesta (Ejemplo) |\n| --- | --- | --- |\n| `200 OK` | **Éxito:** Retorna una lista de notificaciones para el usuario. Si no hay notificaciones, retorna una lista vacía. | `json [ { \"id\": 90, \"usuario\": { \"id\": 3, \"nombre\": \"Jhon Doe\", \"correo\": \"jhon.doe_cliente@booknest.com\", \"contrasena\": \"$2a$10$kALggtXHlZ4XeALMloXUM.FrJLcp364a.y7sHWf6emaRtCOTEbo.W\", \"rol\": \"CLIENTE\", \"fechaRegistro\": \"2025-06-12T11:21:08.725195\" }, \"mensaje\": \"El libro 'Noches blancas y otros cuentos' ha cambiado de precio a $100000.0\", \"fecha\": \"2025-06-12T11:50:22.699791\", \"leido\": false }, { \"id\": 94, \"usuario\": { \"id\": 3, \"nombre\": \"Jhon Doe\", \"correo\": \"jhon.doe_cliente@booknest.com\", \"contrasena\": \"$2a$10$kALggtXHlZ4XeALMloXUM.FrJLcp364a.y7sHWf6emaRtCOTEbo.W\", \"rol\": \"CLIENTE\", \"fechaRegistro\": \"2025-06-12T11:21:08.725195\" }, \"mensaje\": \"El stock del libro 'Noches blancas y otros cuentos' ha cambiado a 10 unidades.\", \"fecha\": \"2025-06-12T11:50:22.716655\", \"leido\": false }, { \"id\": 96, \"usuario\": { \"id\": 3, \"nombre\": \"Jhon Doe\", \"correo\": \"jhon.doe_cliente@booknest.com\", \"contrasena\": \"$2a$10$kALggtXHlZ4XeALMloXUM.FrJLcp364a.y7sHWf6emaRtCOTEbo.W\", \"rol\": \"CLIENTE\", \"fechaRegistro\": \"2025-06-12T11:21:08.725195\" }, \"mensaje\": \"Tu orden ha sido creada con estado PENDIENTE.\", \"fecha\": \"2025-06-12T12:40:56.970399\", \"leido\": false } ]` |"
+					},
+					"response": []
+				},
+				{
+					"name": "Marcar como leido",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRvZV9jbGllbnRlQGJvb2tuZXN0LmNvbSIsInJvbCI6IkNMSUVOVEUiLCJpYXQiOjE3NDk3NTg4NzQsImV4cCI6MTc0OTg0NTI3NH0.dr_lPB-WgdNjikEHLJ0vfy3Yx5KHbroS5uu3vraqBEw",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": "{{base_url}}/notificaciones/marcar-leido/{{id}}",
+						"description": "## Endpoint: Marcar Notificación como Leída\n\nEste endpoint permite a un **usuario autenticado (el** **`CLIENTE`** **propietario de la notificación o un** **`ADMIN`****)** marcar una notificación específica como \"leída\" utilizando su identificador único.\n\n---\n\n### **URL**\n\n`PUT /notificaciones/marcar-leido/{id}`\n\n---\n\n### **Descripción**\n\nActualiza el estado `leido` de una notificación específica a `true` (verdadera), indicando que el usuario ha visto y procesado el mensaje. **Este endpoint requiere que el usuario esté autenticado.** Solo el usuario propietario de la notificación o un usuario con rol `ADMIN` pueden marcar una notificación como leída.\n\n### **Parámetros de Ruta (Path Parameters)**\n\nLos siguientes parámetros deben ser incluidos en la ruta de la URL:\n\n| Parámetro | Tipo de Dato | Obligatorio | Descripción | Ejemplo |\n| --- | --- | --- | --- | --- |\n| `id` | `Long` | Sí | El **identificador único** de la notificación a marcar como leída. | `90` |\n\n### **Parámetros de Solicitud (Request Body)**\n\nEste endpoint **no espera ningún cuerpo de solicitud JSON**. La acción de \"marcar como leída\" se infiere de la URL y el método HTTP.\n\n---\n\n### **Cabeceras de Solicitud (Request Headers)**\n\nEste endpoint requiere autenticación mediante un token JWT válido.\n\n| Cabecera | Valor de Ejemplo | Descripción |\n| --- | --- | --- |\n| `Authorization` | `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAY2xpZW50ZS5jb20iLCJyb2wiOiJDTElFTlRFIiwiaWF0IjoxNzQ3NzU4Mzk0LCJleHAiOjE3NDc4NDQ3OTR9.xyz...` | Un token JWT válido obtenido del endpoint `/auth/login`. Debe comenzar con `Bearer` (incluyendo el espacio). |\n\n### **Ejemplo de Solicitud**\n\nHTTP\n\n```\nPUT /notificaciones/marcar-leido/90 HTTP/1.1\nHost: http://localhost:8080\nAuthorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAY2xpZW50ZS5jb20iLCJyb2wiOiJDTElFTlRFIiwiaWF0IjoxNzQ3NzU4Mzk0LCJleHAiOjE3NDc4NDQ3OTR9.xyz...\n\n ```\n\n---\n\n### **Respuestas (Responses)**\n\n| Código de Estado HTTP | Descripción | Cuerpo de la Respuesta (Ejemplo) |\n| --- | --- | --- |\n| `204 No Content` | **Éxito:** La notificación ha sido marcada como leída exitosamente. Este código indica que la operación fue exitosa pero no hay contenido que devolver. | `(Cuerpo vacío)` |"
+					},
+					"response": []
+				}
+			],
+			"description": "Los endpoints de notificaciones permiten a los usuarios mantenerse al tanto de eventos importantes y actualizaciones dentro del sistema. Estas notificaciones son alertas que se generan automáticamente, informándote sobre cambios en el estado de tus órdenes, actualizaciones de precios de libros, o la disponibilidad de nuevos títulos que podrían interesarte. Puedes consultarlas para estar siempre informado y asegurarte de no perderte ninguna novedad relevante.\n\nSe crea una notificacion automaticamente para el usuario en los siguientes casos\n\n- Se crea una nueva orden\n    \n- Se actualiza el estado de una orden por parte de un administrador\n    \n\nSe crea una notificacion global visible para todos los usuarios en el siguiente caso\n\n- Cada que se actualiza el stock y el precio de un libro"
+		},
+		{
+			"name": "Transaccion Managment",
+			"item": [
+				{
+					"name": "Ver historial de transacciones",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRvZV9jbGllbnRlQGJvb2tuZXN0LmNvbSIsInJvbCI6IkNMSUVOVEUiLCJpYXQiOjE3NDk3NTg4NzQsImV4cCI6MTc0OTg0NTI3NH0.dr_lPB-WgdNjikEHLJ0vfy3Yx5KHbroS5uu3vraqBEw",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": "{{base_url}}/transacciones/usuario",
+						"description": "## Endpoint: Obtener Historial de Transacciones del Usuario Autenticado\n\nEste endpoint permite a un **usuario autenticado (con rol** **`CLIENTE`** **o** **`ADMIN`****)** recuperar un historial de todas las transacciones financieras (ej. compras, pagos) asociadas a su cuenta.\n\n---\n\n### **URL**\n\n`GET /transacciones/usuario`\n\n---\n\n### **Descripción**\n\nRetorna una lista de todas las transacciones realizadas por el usuario que realiza la solicitud (identificado por su token JWT). Este historial puede incluir detalles como el monto, la fecha, el tipo de transacción, etc. **Este endpoint requiere que el usuario esté autenticado.**\n\n---\n\n### **Parámetros de Solicitud (Query Parameters)**\n\nNinguno. El ID del usuario se obtiene del token de autenticación.\n\n### **Cabeceras de Solicitud (Request Headers)**\n\nEste endpoint requiere autenticación mediante un token JWT válido.\n\n| Cabecera | Valor de Ejemplo | Descripción |\n| --- | --- | --- |\n| `Authorization` | `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAY2xpZW50ZS5jb20iLCJyb2wiOiJDTElFTlRFIiwiaWF0IjoxNzQ3NzU4Mzk0LCJleHAiOjE3NDc4NDQ3OTR9.xyz...` | Un token JWT válido obtenido del endpoint `/auth/login`. Debe comenzar con `Bearer` (incluyendo el espacio). |\n\n### **Ejemplo de Solicitud**\n\nHTTP\n\n```\nGET /transacciones/usuario HTTP/1.1\nHost: http://localhost:8080\nAuthorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaG9uLmRpYXpAY2xpZW50ZS5jb20iLCJyb2wiOiJDTElFTlRFIiwiaWF0IjoxNzQ3NzU4Mzk0LCJleHAiOjE3NDc4NDQ3OTR9.xyz...\n\n ```\n\n---\n\n### **Respuestas (Responses)**\n\n| Código de Estado HTTP | Descripción | Cuerpo de la Respuesta (Ejemplo) |\n| --- | --- | --- |\n| `200 OK` | **Éxito:** Retorna una lista del historial de transacciones para el usuario. Si no hay transacciones, retorna una lista vacía. | `json [ { \"id\": 501, \"usuarioId\": 3, \"ordenId\": 19, \"monto\": 168.47, \"tipoTransaccion\": \"COMPRA\", \"metodoPago\": \"Tarjeta de crédito\", \"fechaTransaccion\": \"2025-06-12T12:41:00Z\", \"estado\": \"EXITOSA\" }, { \"id\": 502, \"usuarioId\": 3, \"ordenId\": 20, \"monto\": 19.99, \"tipoTransaccion\": \"COMPRA\", \"metodoPago\": \"PayPal\", \"fechaTransaccion\": \"2025-06-10T09:16:00Z\", \"estado\": \"EXITOSA\" } ]` |"
+					},
+					"response": []
+				}
+			],
+			"description": "Los endpoints de transacciones proporcionan acceso al historial de movimientos financieros asociados a las órdenes de los usuarios. Es importante destacar que **las transacciones se registran automáticamente en el sistema en el momento en que una orden es marcada como \"COMPLETADA\"**, reflejando así el pago y la finalización exitosa del proceso de compra. Estos endpoints permiten a los usuarios y administradores consultar esta información para llevar un control detallado de las operaciones."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "id",
+			"value": "1"
+		},
+		{
+			"key": "base_url",
+			"value": "https://postman-rest-api-learner.glitch.me/"
+		}
+	]
+}

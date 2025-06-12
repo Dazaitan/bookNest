@@ -126,7 +126,7 @@ public class OrdenController {
         OrdenDTO actualizada = ordenServiceImpl.actualizarEstadoOrden(id, nuevoEstado);
         return ResponseEntity.ok(actualizada);
     }
-
+    //Tengo que cambiar para que los administradores sean los unicos que puedan realizar este cambio
     @PutMapping("/completar/{id}")
     @PreAuthorize("hasRole('CLIENTE')")
     public ResponseEntity<OrdenDTO> completarOrden(@PathVariable Long id, @RequestBody String metodoPago) {

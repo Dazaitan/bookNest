@@ -68,6 +68,6 @@
       leido BOOLEAN DEFAULT FALSE
       );
 3. Pruebas
-   Ejecutar todas las pruebas unitarias comando:
+   Ejecutar todas las pruebas unitarias comando(Para ejecutar todos los tests antes debe estar ejecutando Docker desktop):
     ```bash
     mvn test
